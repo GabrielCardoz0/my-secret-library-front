@@ -1,0 +1,50 @@
+import { Button, Input, Label, ListBox, ListBoxItem, Popover, Select, SelectValue, TextArea } from "react-aria-components";
+import Page from "~/components/Page";
+import Separator from "~/components/Separator";
+
+export default function CreateBookPage() {
+    return (
+        <Page>
+            <div className="w-full h-full flex flex-col items-center">
+                
+                <div className="h-32 px-10 flex items-center justify-center text-2xl font-semibold">MY SECRET LIBRARY</div>
+
+                <span className="flex items-center justify-center text-xl">Novo livro</span>
+
+                <Separator size={30} />
+
+                <form className="flex flex-col gap-4">
+                    <Input type="text" name="name" placeholder="Nome do livro *" className="h-10 p-2 border rounded-md w-[500px]" />
+                    <Input type="text" name="serie_name" placeholder="Nome da série do livro" className="h-10 p-2 border rounded-md w-[500px]" />
+                    <Input type="text" name="author" placeholder="Autor *" className="h-10 p-2 border rounded-md w-[500px]" />
+                    <Input type="text" name="gender" placeholder="Gênero *" className="h-10 p-2 border rounded-md w-[500px]" />
+                    <Input type="text" name="img_url" placeholder="Capa do livro" className="h-10 p-2 border rounded-md w-[500px]" />
+                    <TextArea name="synopses" placeholder="Sinopse" className="h-32 p-2 border rounded-md w-[500px]" />
+                    <Select className="flex gap-4" isRequired>
+                        <Label>Minha nota</Label>
+                        <Button>
+                            <SelectValue />
+                            <span aria-hidden="true">▼</span>
+                        </Button>
+                        <Popover>
+                            <ListBox className="bg-white rounded-md w-[100px] p-2">
+                                <ListBoxItem className="p-1">1</ListBoxItem>
+                                <ListBoxItem className="p-1">2</ListBoxItem>
+                                <ListBoxItem className="p-1">3</ListBoxItem>
+                                <ListBoxItem className="p-1">4</ListBoxItem>
+                                <ListBoxItem className="p-1">5</ListBoxItem>
+                            </ListBox>
+                        </Popover>
+                    </Select>
+
+                    <Button type="submit" className="px-8 h-10 bg-blue-500 text-xl rounded-md text-white hover:opacity-85">Cadastrar</Button>
+
+                </form>
+            </div>
+        </Page>
+    )
+}
+/*
+
+id |  name  |  synopsis  | gender  |  author  | serie_name | rating |            img_url            | user_id |         created_at         | is_read
+*/

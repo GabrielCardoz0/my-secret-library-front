@@ -34,6 +34,8 @@ export default function HomePage() {
 
                 </div>
 
+                <Separator size={60} />
+
                 <div className="flex justify-center flex-col items-center gap-4">
                     <p>Página 1 de 1</p>
                     <div className="w-full flex justify-center gap-2">
