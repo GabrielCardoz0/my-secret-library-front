@@ -1,4 +1,5 @@
 import { Button, Input, Label, ListBox, ListBoxItem, Popover, Select, SelectValue, TextArea } from "react-aria-components";
+import SubmitButton from "~/components/Button";
 import Page from "~/components/Page";
 import Separator from "~/components/Separator";
 
@@ -37,14 +38,11 @@ export default function CreateBookPage() {
                         </Popover>
                     </Select>
 
-                    <Button type="submit" className="px-8 h-10 bg-blue-500 text-xl rounded-md text-white hover:opacity-85">Cadastrar</Button>
+
+                    <SubmitButton>Cadastrar</SubmitButton>
 
                 </form>
             </div>
         </Page>
     )
 }
-/*
-
-id |  name  |  synopsis  | gender  |  author  | serie_name | rating |            img_url            | user_id |         created_at         | is_read
-*/
