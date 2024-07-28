@@ -20,9 +20,9 @@ export default function CreateBookPage() {
                     <Input type="text" name="gender" placeholder="Gênero *" className="h-10 p-2 border rounded-md w-[500px]" />
                     <Input type="text" name="img_url" placeholder="Capa do livro" className="h-10 p-2 border rounded-md w-[500px]" />
                     <TextArea name="synopses" placeholder="Sinopse" className="h-32 p-2 border rounded-md w-[500px]" />
-                    <Select className="flex gap-4" isRequired>
+                    <Select className="flex gap-4 items-center" isRequired>
                         <Label>Minha nota</Label>
-                        <Button>
+                        <Button className="flex gap-2 p-2">
                             <SelectValue />
                             <span aria-hidden="true">▼</span>
                         </Button>
