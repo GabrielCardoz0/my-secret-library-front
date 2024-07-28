@@ -1,5 +1,6 @@
 import { Button, Input, Label, ListBox, ListBoxItem, Popover, Select, SelectValue, TextArea } from "react-aria-components";
 import SubmitButton from "~/components/Button";
+import MySecretLibrary from "~/components/MySecretLibrary";
 import Page from "~/components/Page";
 import Separator from "~/components/Separator";
 
@@ -8,7 +9,7 @@ export default function CreateBookPage() {
         <Page>
             <div className="w-full h-full flex flex-col items-center">
                 
-                <div className="h-32 px-10 flex items-center justify-center text-2xl font-semibold">MY SECRET LIBRARY</div>
+                <MySecretLibrary />
 
                 <span className="flex items-center justify-center text-xl">Novo livro</span>
 
