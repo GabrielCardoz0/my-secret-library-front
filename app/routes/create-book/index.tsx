@@ -1,10 +1,74 @@
-import { Button, Input, Label, ListBox, ListBoxItem, Popover, Select, SelectValue, TextArea } from "react-aria-components";
+import { useNavigate } from "@remix-run/react";
+import { useState } from "react";
+import { Button, Input, Key, Label, ListBox, ListBoxItem, Popover, Select, SelectValue, TextArea } from "react-aria-components";
+import { toast } from "react-toastify";
 import SubmitButton from "~/components/Button";
 import MySecretLibrary from "~/components/MySecretLibrary";
 import Page from "~/components/Page";
 import Separator from "~/components/Separator";
+import { api } from "~/services/api";
+
+interface NewBook {
+    name: string;
+    serie_name: string;
+    author: string;
+    gender: string;
+    img_url: string;
+    synopsis: string;
+    rating: Key;
+    is_read: boolean;
+}
 
 export default function CreateBookPage() {
+    
+    const [newBook, setNewBook] = useState<NewBook>({
+        name: "",
+        serie_name: "",
+        author: "",
+        gender: "",
+        img_url: "",
+        synopsis: "",
+        rating: 0,
+        is_read: false
+    });
+
+    const navigate = useNavigate();
+
+    const handleChanges = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setNewBook({
+            ...newBook,
+            [event.target.name]: event.target.value
+        });
+    }
+
+    const handleSelectChange = (note: Key) => {
+        setNewBook({
+            ...newBook,
+            rating: note
+        });
+    }
+
+    async function createBook(book: NewBook) {
+        try {
+            await api.post("/books", book);
+
+            toast.success("Livro cadastrado com sucesso!");
+
+            navigate("/home");
+            
+        } catch (error) {
+            console.log(error);
+            toast.error("Erro ao cadastrar livro!");
+        }
+    }
+
+    function handleCreateNewBook(event: React.FormEvent) {
+        event.preventDefault();
+        toast.success("Livro cadastrado com sucesso!");
+        createBook(newBook);
+    }
+
+
     return (
         <Page>
             <div className="w-full h-full flex flex-col items-center">
@@ -15,14 +79,16 @@ export default function CreateBookPage() {
 
                 <Separator size={30} />
 
-                <form className="flex flex-col gap-4">
-                    <Input type="text" name="name" placeholder="Nome do livro *" className="h-10 p-2 border rounded-md w-[500px]" />
-                    <Input type="text" name="serie_name" placeholder="Nome da série do livro" className="h-10 p-2 border rounded-md w-[500px]" />
-                    <Input type="text" name="author" placeholder="Autor *" className="h-10 p-2 border rounded-md w-[500px]" />
-                    <Input type="text" name="gender" placeholder="Gênero *" className="h-10 p-2 border rounded-md w-[500px]" />
-                    <Input type="text" name="img_url" placeholder="Capa do livro" className="h-10 p-2 border rounded-md w-[500px]" />
-                    <TextArea name="synopses" placeholder="Sinopse" className="h-32 p-2 border rounded-md w-[500px]" />
-                    <Select className="flex gap-4 items-center" isRequired>
+                <form className="flex flex-col gap-4" onSubmit={handleCreateNewBook}>
+                    <FormInput onChange={handleChanges} type="text" name="name" value={newBook.name} placeholder="Nome do livro *" />
+                    <FormInput onChange={handleChanges} type="text" name="serie_name" value={newBook.serie_name} placeholder="Nome da série do livro" required={false} />
+                    <FormInput onChange={handleChanges} type="text" name="author" value={newBook.author} placeholder="Autor *" />
+                    <FormInput onChange={handleChanges} type="text" name="gender" value={newBook.gender} placeholder="Gênero *" />
+                    <FormInput onChange={handleChanges} type="text" name="img_url" value={newBook.img_url} placeholder="Capa do livro" />
+                    
+                    <TextArea onChange={handleChanges} name="synopsis" value={newBook.synopsis} required placeholder="Sinopse" className="h-32 p-2 border rounded-md w-[500px]" />
+                    
+                    <Select className="flex gap-4 items-center" isRequired onSelectionChange={handleSelectChange} name="rating">
                         <Label>Minha nota</Label>
                         <Button className="flex gap-2 p-2">
                             <SelectValue />
@@ -30,15 +96,14 @@ export default function CreateBookPage() {
                         </Button>
                         <Popover>
                             <ListBox className="bg-white rounded-md w-[100px] p-2">
-                                <ListBoxItem className="p-1">1</ListBoxItem>
-                                <ListBoxItem className="p-1">2</ListBoxItem>
-                                <ListBoxItem className="p-1">3</ListBoxItem>
-                                <ListBoxItem className="p-1">4</ListBoxItem>
-                                <ListBoxItem className="p-1">5</ListBoxItem>
+                                <ListBoxItem className="p-1" id={1}>1</ListBoxItem>
+                                <ListBoxItem className="p-1" id={2}>2</ListBoxItem>
+                                <ListBoxItem className="p-1" id={3}>3</ListBoxItem>
+                                <ListBoxItem className="p-1" id={4}>4</ListBoxItem>
+                                <ListBoxItem className="p-1" id={5}>5</ListBoxItem>
                             </ListBox>
                         </Popover>
                     </Select>
-
 
                     <SubmitButton>Cadastrar</SubmitButton>
 
@@ -46,4 +111,27 @@ export default function CreateBookPage() {
             </div>
         </Page>
     )
+}
+
+interface FormInputProps {
+    type: string;
+    name: string;
+    value: string;
+    placeholder: string;
+    required?: boolean;
+    onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+}
+
+function FormInput({ type, name, value, placeholder, required = true, onChange }: FormInputProps) {
+    return (
+        <Input
+            type={type}
+            name={name}
+            value={value}
+            required={required}
+            placeholder={placeholder}
+            className="h-10 p-2 border rounded-md w-[500px]"
+            onChange={onChange}
+        />
+    );
 }

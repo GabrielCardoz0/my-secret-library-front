@@ -65,7 +65,7 @@ export default function HomePage() {
                     <Input placeholder="Search books" className="h-10 p-2 border rounded-md w-[500px]" onChange={handleSearch} />
 
                     <div className="hover:opacity-85 absolute right-0">
-                        <SubmitButton>
+                        <SubmitButton onPress={() => navigate("/create-book")}>
                             Novo livro
                         </SubmitButton>
                     </div>
