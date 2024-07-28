@@ -1,9 +1,55 @@
-import { Button, Input } from "react-aria-components";
+import { useNavigate, useSearchParams } from "@remix-run/react";
+import { useEffect, useState } from "react";
+import { Input } from "react-aria-components";
+import SubmitButton from "~/components/Button";
 import Page from "~/components/Page";
+import Pagination from "~/components/Pagination";
 import Separator from "~/components/Separator";
+import { api } from "~/services/api";
+
+export interface Book {
+    id: number;
+    name: string;
+    synopsis: string;
+    gender: string;
+    author: string;
+    rating: number;
+    serie_name: string;
+    is_read: boolean;
+    img_url: string;
+    user_id: number;
+    created_at: Date;
+}
 
 
 export default function HomePage() {
+    const [books, setBooks] = useState<Book[]>([]);
+    const [booksCount, setBooksCount] = useState<number>(0);
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+
+    const currentPage = searchParams.get('page') ?? 1;
+    const pageSize = 12;
+    const totalPages = Math.ceil(booksCount / pageSize);
+
+    async function getMyBooks() {
+        try {
+            const response = await api.get(`/books?page=${currentPage}&limit=${pageSize}`);
+
+            setBooks(response.data.books);
+            setBooksCount(response.data.count);
+            
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    useEffect(() => {
+        getMyBooks();
+        console.log(navigate);
+        
+    }, [])
+    
     return (
         <Page>
             <div className="w-full h-full flex items-center flex-col">
@@ -12,39 +58,24 @@ export default function HomePage() {
                 <div className="w-full max-w-[1100px] flex justify-center relative">
                     <Input placeholder="Search books" className="h-10 p-2 border rounded-md w-[500px]" />
 
-                    <Button className="px-8 h-10 bg-blue-500 text-xl rounded-md text-white hover:opacity-85 absolute right-0">Cadastrar novo livro</Button>
+                    <div className="hover:opacity-85 absolute right-0">
+                        <SubmitButton>
+                            Novo livro
+                        </SubmitButton>
+                    </div>
+
                 </div>
 
                 <Separator size={60} />
 
                 <div className="w-full max-w-[1600px] h-[600px] grid grid-cols-6 grid-rows-2">
-
-                    <Book/>
-                    <Book/>
-                    <Book/>
-                    <Book/>
-                    <Book/>
-                    <Book/>
-                    <Book/>
-                    <Book/>
-                    <Book/>
-                    <Book/>
-                    <Book/>
-                    <Book/>
-
+                    {books.length === 0 ? <div>Não há nada por aqui</div> : books.map((book) => <Book key={book.id} />)}
                 </div>
 
                 <Separator size={60} />
 
-                <div className="flex justify-center flex-col items-center gap-4">
-                    <p>Página 1 de 1</p>
-                    <div className="w-full flex justify-center gap-2">
-                        <Button className="w-10 h-10 bg-blue-500 text-white rounded-md">1</Button>
-                        <Button className="w-10 h-10 bg-blue-500 text-white rounded-md">1</Button>
-                        <Button className="w-10 h-10 bg-blue-500 text-white rounded-md">1</Button>
-                        <Button className="w-10 h-10 bg-blue-500 text-white rounded-md">1</Button>
-                    </div>
-                </div>
+                <Pagination currentPage={Number(currentPage)} totalPages={totalPages} />
+
             </div>
         </Page>
     )
