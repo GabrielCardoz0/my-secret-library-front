@@ -1,4 +1,6 @@
 import type { MetaFunction } from "@remix-run/node";
+import { useNavigate } from "@remix-run/react";
+import { useEffect } from "react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -9,6 +11,12 @@ export const meta: MetaFunction = () => {
 
 
 export default function Index() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    navigate("/login");
+  }, []);
+
   return (
     <div className="font-sans p-4">
       <h1 className="text-3xl">Welcome to Remix</h1>
