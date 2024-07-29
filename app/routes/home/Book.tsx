@@ -6,16 +6,23 @@ import { useNavigate } from "@remix-run/react";
 
 interface BookItemProps {
     book: Book;
+    bearedToken: string;
 }
 
-export default function BookItem({ book }: BookItemProps) {
+
+export default function BookItem({ book, bearedToken }: BookItemProps) {
     const navigate = useNavigate();
+    
 
     async function handlChangeReadBookStatus(isRead: boolean) {
         try {
             const readedBook = { ...book, is_read: isRead };
             
-            await api.put("/books/"+book.id, readedBook);
+            await api.put("/books/"+book.id, readedBook, {
+                headers: {
+                    Authorization: bearedToken,
+                }
+            });
             
         } catch (error) {
             console.log(error);
@@ -28,8 +35,11 @@ export default function BookItem({ book }: BookItemProps) {
 
     async function handleDeleteBook() {
         try {
-            const response = await api.delete("/books/"+book.id);
-            console.log(response);
+            await api.delete("/books/"+book.id, {
+                headers: {
+                    Authorization: bearedToken,
+                }
+            });
             
             toast.success("Livro deletado com sucesso!");
         } catch (error) {
@@ -40,7 +50,6 @@ export default function BookItem({ book }: BookItemProps) {
             window.location.reload();
         }
     }
-
 
     return (
         <>

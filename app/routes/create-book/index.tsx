@@ -1,12 +1,14 @@
-import { useNavigate } from "@remix-run/react";
-import { useState } from "react";
-import { Button, Input, Key, Label, ListBox, ListBoxItem, Popover, Select, SelectValue, TextArea } from "react-aria-components";
-import { toast } from "react-toastify";
+import { Form, redirect, useLoaderData, useNavigate } from "@remix-run/react";
+import { useEffect, useState } from "react";
+import { Button, Key, Label, ListBox, ListBoxItem, Popover, Select, SelectValue, TextArea } from "react-aria-components";
 import SubmitButton from "~/components/Button";
 import MySecretLibrary from "~/components/MySecretLibrary";
 import Page from "~/components/Page";
 import Separator from "~/components/Separator";
 import { api } from "~/services/api";
+import FormInput from "./FormInput";
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { getSession } from "~/session";
 
 interface NewBook {
     name: string;
@@ -19,8 +21,44 @@ interface NewBook {
     is_read: boolean;
 }
 
-export default function CreateBookPage() {
+
+export async function action({ request }: ActionFunctionArgs) {
+    const formData = await request.formData();
+    const formsValues = Object.fromEntries(formData);
+
+    const newBook = {
+        ...formsValues,
+        rating: Number(formsValues.rating),
+        is_read: false
+    };
+
+    const session = await getSession(request.headers.get("cookie"));
+
+    const bearedToken = `Bearer ${session.data.token}`;
+
+    try {
+        await api.post("/books", newBook, {
+            headers: {
+                Authorization: bearedToken
+            },
+        });
+
+        return redirect("/home");
+        
+    } catch (error) {
+        console.log(JSON.stringify(error, null, 2));
+    }
+
+    return null;
+}
+
+export async function loader({ request }: LoaderFunctionArgs) {
+    const session = await getSession(request.headers.get("cookie"));
     
+    return session.data.token ?? null;
+}
+
+export default function CreateBookPage() {
     const [newBook, setNewBook] = useState<NewBook>({
         name: "",
         serie_name: "",
@@ -33,6 +71,12 @@ export default function CreateBookPage() {
     });
 
     const navigate = useNavigate();
+
+    const token = useLoaderData<typeof loader>();
+
+    useEffect(() => {
+        if(!token) return navigate("/login");
+    }, [token, navigate])
 
     const handleChanges = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setNewBook({
@@ -48,27 +92,6 @@ export default function CreateBookPage() {
         });
     }
 
-    async function createBook(book: NewBook) {
-        try {
-            await api.post("/books", book);
-
-            toast.success("Livro cadastrado com sucesso!");
-
-            navigate("/home");
-            
-        } catch (error) {
-            console.log(error);
-            toast.error("Erro ao cadastrar livro!");
-        }
-    }
-
-    function handleCreateNewBook(event: React.FormEvent) {
-        event.preventDefault();
-        toast.success("Livro cadastrado com sucesso!");
-        createBook(newBook);
-    }
-
-
     return (
         <Page>
             <div className="w-full h-full flex flex-col items-center">
@@ -79,7 +102,7 @@ export default function CreateBookPage() {
 
                 <Separator size={30} />
 
-                <form className="flex flex-col gap-4" onSubmit={handleCreateNewBook}>
+                <Form method="POST" className="flex flex-col gap-4">
                     <FormInput onChange={handleChanges} type="text" name="name" value={newBook.name} placeholder="Nome do livro *" />
                     <FormInput onChange={handleChanges} type="text" name="serie_name" value={newBook.serie_name} placeholder="Nome da série do livro" required={false} />
                     <FormInput onChange={handleChanges} type="text" name="author" value={newBook.author} placeholder="Autor *" />
@@ -89,7 +112,7 @@ export default function CreateBookPage() {
                     <TextArea onChange={handleChanges} name="synopsis" value={newBook.synopsis} required placeholder="Sinopse" className="h-32 p-2 border rounded-md w-[500px]" />
                     
                     <Select className="flex gap-4 items-center" isRequired onSelectionChange={handleSelectChange} name="rating">
-                        <Label>Minha nota</Label>
+                        <Label>Minha nota: </Label>
                         <Button className="flex gap-2 p-2">
                             <SelectValue />
                             <span aria-hidden="true">▼</span>
@@ -107,31 +130,8 @@ export default function CreateBookPage() {
 
                     <SubmitButton>Cadastrar</SubmitButton>
 
-                </form>
+                </Form>
             </div>
         </Page>
     )
-}
-
-interface FormInputProps {
-    type: string;
-    name: string;
-    value: string;
-    placeholder: string;
-    required?: boolean;
-    onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-}
-
-function FormInput({ type, name, value, placeholder, required = true, onChange }: FormInputProps) {
-    return (
-        <Input
-            type={type}
-            name={name}
-            value={value}
-            required={required}
-            placeholder={placeholder}
-            className="h-10 p-2 border rounded-md w-[500px]"
-            onChange={onChange}
-        />
-    );
 }

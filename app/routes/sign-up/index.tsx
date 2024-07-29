@@ -13,7 +13,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const user = Object.fromEntries(formData);
 
     try {
-        const response = await api.post("/auth", user);
+        const response = await api.post("/sign-up", user);
 
         const token = response.data.token;
 
@@ -21,7 +21,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
         session.set("token", token);
 
-        return redirect("/home", {
+        return redirect("/login", {
             headers: {
                 "Set-Cookie": await commitSession(session),
             }
@@ -40,8 +40,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return session.data.token ?? null;
 }
 
-export default function LoginPage() {
+export default function SignUpPage() {
     const [user, setUser] = useState({
+        name: "",
         username: "",
         password: ""
     })
@@ -67,21 +68,20 @@ export default function LoginPage() {
             <div className="w-full h-full flex justify-center items-center">
 
                 <Form method="POST" className="flex flex-col gap-4 items-center border rounded-md py-20 px-8">
-                    <Label className="text-lg font-medium">Bem vindo, faça seu login!</Label>
+                    <Label className="text-lg font-medium">Venha aproveitar, faça seu cadastro!</Label>
 
                     <Separator size={30} />
 
+                    <input onChange={handleChangeInput} type="text" name="name" value={user.name} required placeholder="Seu nome *" className="h-10 p-2 border rounded-md w-[500px]" />
+
                     <input onChange={handleChangeInput} type="text" name="username" value={user.username.toLowerCase()} required placeholder="Seu usuário *" className="h-10 p-2 border rounded-md w-[500px]" />
 
-                    <input onChange={handleChangeInput} type="password" name="password" value={user.password} required placeholder="Sua senha *" className="h-10 p-2 border rounded-md w-[500px]" />
+                    <input onChange={handleChangeInput} type="text" name="password" value={user.password} required placeholder="Sua senha *" className="h-10 p-2 border rounded-md w-[500px]" />
 
-                    <button className="px-8 h-10 bg-blue-500 w-[500px] text-sm rounded-md text-white hover:opacity-85">Entrar</button>
-                    
-                    
-                    <Link to={"/sign-up"}><span className="text-blue-400">Novo por aqui? Cadastre-se!</span></Link>
+                    <button className="px-8 h-10 bg-blue-500 w-[500px] text-sm rounded-md text-white hover:opacity-85">Cadastrar</button>
+
+                    <Link to={"/login"}><span className="text-blue-400">Já é cadastrado? Faça login!</span></Link>
                 </Form>
-
-
             </div>
         </Page>
     );
